@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portafolio · Base de Datos II</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<video id="bg-video" class="bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+  <source src="video-fondo.mp4" type="video/mp4">
+</video>
+<div id="bg-overlay" aria-hidden="true"></div>
+<div id="transition-veil" aria-hidden="true">
+  <div class="veil-mark">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+<div id="custom-cursor" aria-hidden="true">
+  <svg viewBox="0 0 34 34">
+    <circle class="cc-ring" cx="17" cy="17" r="9"/>
+    <circle class="cc-dot" cx="17" cy="17" r="1.6"/>
+    <line class="cc-tick" x1="17" y1="0" x2="17" y2="6"/>
+    <line class="cc-tick" x1="17" y1="28" x2="17" y2="34"/>
+    <line class="cc-tick" x1="0" y1="17" x2="6" y2="17"/>
+    <line class="cc-tick" x1="28" y1="17" x2="34" y2="17"/>
+  </svg>
+</div>
+
+<nav class="topnav" id="topnav">
+  <button class="brand" id="brand-btn" type="button">
+    <span class="brand-mark">bd<span>II</span></span>
+    <span class="brand-name">Portafolio</span>
+  </button>
+  <div class="nav-links" id="nav-links">
+    <button class="nav-link" data-goto="dashboard" type="button">Unidades</button>
+    <button class="nav-link" data-goto="about" type="button">Sobre mí</button>
+    <span class="nav-role" id="nav-role"></span>
+    <button class="back-link nav-back hidden" id="nav-back-btn" type="button">← Volver</button>
+    <button class="nav-link nav-logout" id="logout-btn" type="button">Cerrar sesión</button>
+  </div>
+</nav>
+
+<main id="main">
+
+  <!-- ============ HOME ============ -->
+  <section class="screen active" id="screen-home">
+    <div class="home-grid">
+      <div class="home-copy">
+        <p class="eyebrow-line">Universidad · Asignatura</p>
+        <h1 class="course-title">Base de Datos <span>II</span></h1>
+        <p class="home-intro">
+          Este portafolio reúne el trabajo desarrollado a lo largo del curso: desde el diseño
+          de arquitecturas corporativas hasta la seguridad, la alta disponibilidad y la
+          recuperación de datos. Cada unidad documenta el avance semana a semana, con la
+          evidencia de las actividades realizadas.
+        </p>
+        <div class="home-actions">
+          <button class="btn btn-primary hero-btn hero-btn-login" id="btn-login" type="button">
+            <span class="hero-btn-label">Iniciar sesión</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h9.5M8.5 3.5 13 8l-4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="btn btn-ghost hero-btn hero-btn-about" id="btn-about" type="button"><span class="hero-btn-label">Sobre mí</span></button>
+        </div>
+      </div>
+      <div class="home-visual" aria-hidden="true">
+        <svg viewBox="0 0 420 460" class="erd-svg" id="erd-svg">
+          <!-- construido dinámicamente / decorativo, ver style.css + script.js -->
+        </svg>
+      </div>
+    </div>
+
+    <div class="home-units-preview">
+      <p class="section-label">Contenido del curso</p>
+      <div class="preview-strip" id="preview-strip"><!-- llenado por JS --></div>
+    </div>
+  </section>
+
+  <!-- ============ SOBRE MÍ ============ -->
+  <section class="screen" id="screen-about">
+    <div class="about-wrap">
+      <button class="back-link" data-goto="home" type="button">← Volver</button>
+      <div class="about-grid">
+        <div class="about-photo-col">
+          <div class="about-photo" id="about-photo">
+            <span id="about-initials">JP</span>
+            <button class="photo-edit-btn" id="photo-edit-btn" type="button" title="Subir foto desde tu computadora">
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2 11.5V13h1.5l7.4-7.4-1.5-1.5L2 11.5ZM11.8 2.7a1 1 0 0 1 1.4 0l.9.9a1 1 0 0 1 0 1.4l-1 1-2.3-2.3 1-1Z" fill="currentColor"/></svg>
+            </button>
+            <input type="file" id="photo-input" accept="image/*" hidden>
+          </div>
+          <div class="about-photo-caption">Estudiante · Ingeniería de Sistemas</div>
+        </div>
+        <div class="about-text-col">
+          <p class="eyebrow-line">Sobre mí</p>
+          <h2 class="about-name" id="about-name">Jose Daniel Perez Villalva</h2>
+          <p class="about-desc" id="about-desc">
+            Soy estudiante de Ingeniería de Sistemas y me apasiona todo lo relacionado con las
+            bases de datos y la tecnología. Fuera del salón de clases disfruto mucho los
+            videojuegos y también juego fútbol como arquero, algo que me ha enseñado
+            concentración y reflejos rápidos para tomar decisiones. Ese mismo enfoque lo aplico
+            en este curso de Base de Datos II, en el diseño de arquitecturas corporativas
+            seguras y de alta disponibilidad.
+          </p>
+          <ul class="about-facts">
+            <li><span>Curso</span>Base de Datos II</li>
+            <li><span>Enfoque</span>Arquitecturas corporativas &amp; alta disponibilidad</li>
+            <li><span>Herramientas</span>SQL Server Management Studio 19</li>
+            <li><span>Fuera de clase</span>Videojuegos y fútbol (arquero)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LOGIN ============ -->
+  <section class="screen" id="screen-login">
+    <div class="login-wrap">
+      <button class="back-link" data-goto="home" type="button">← Volver</button>
+      <div class="login-card">
+        <p class="eyebrow-line">Acceso al portafolio</p>
+        <h2 class="login-title">Iniciar sesión</h2>
+
+        <form id="login-form" novalidate>
+          <label class="field">
+            <span>Correo electrónico</span>
+            <input type="email" id="login-email" placeholder="nombre@correo.com" required>
+          </label>
+          <label class="field">
+            <span>Contraseña</span>
+            <input type="password" id="login-password" placeholder="••••••••" required>
+          </label>
+          <p class="form-error" id="login-error" hidden></p>
+          <button class="btn btn-primary btn-block" type="submit">Entrar como administrador</button>
+        </form>
+
+        <div class="login-divider"><span>o</span></div>
+
+        <button class="btn btn-ghost btn-block" id="btn-enter-user" type="button">
+          Entrar como usuario (solo lectura)
+        </button>
+        <p class="login-note">
+          Como usuario puedes ver todo el contenido del portafolio, sin necesidad de
+          cuenta. Solo el administrador puede subir o eliminar actividades.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DASHBOARD (4 UNIDADES) ============ -->
+  <section class="screen" id="screen-dashboard">
+    <div class="dash-wrap">
+      <div class="dash-head">
+        <div>
+          <p class="eyebrow-line">Base de Datos II</p>
+          <h2>Unidades del curso</h2>
+        </div>
+        <div class="dash-head-right"><div class="dashboard-summary" id="dashboard-summary"></div><p class="dash-hint" id="dash-hint"></p></div>
+      </div>
+      <div class="units-grid" id="units-grid"><!-- llenado por JS --></div>
+    </div>
+  </section>
+
+  <!-- ============ DETALLE DE UNIDAD ============ -->
+  <section class="screen" id="screen-unit">
+    <div class="unit-wrap">
+      <button class="back-link" data-goto="dashboard" type="button">← Todas las unidades</button>
+      <div class="unit-head">
+        <span class="unit-tag" id="unit-tag">Unidad</span>
+        <h2 id="unit-title">—</h2>
+        <div class="unit-stats" id="unit-stats"><!-- llenado por JS --></div>
+      </div>
+      <div class="weeks-list" id="weeks-list"><!-- llenado por JS --></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ MODAL: NUEVA ACTIVIDAD ============ -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal-close" id="modal-close" type="button" aria-label="Cerrar">✕</button>
+    <p class="eyebrow-line" id="modal-week-label">Semana 1</p>
+    <h3 id="modal-title">Nuevo elemento</h3>
+    <form id="activity-form">
+      <label class="field">
+        <span>Título</span>
+        <input type="text" id="activity-title" placeholder="Ej. Infografía 01 — Arquitectura centralizada" required>
+      </label>
+      <label class="field">
+        <span>Descripción (opcional)</span>
+        <textarea id="activity-desc" rows="2" placeholder="Breve descripción de lo realizado"></textarea>
+      </label>
+      <label class="field">
+        <span>Subir uno o varios archivos desde tu computadora (opcional)</span>
+        <input type="file" id="activity-file" multiple>
+        <span class="field-hint" id="activity-file-name"></span>
+      </label>
+      <label class="field">
+        <span>O enlace externo (opcional)</span>
+        <input type="url" id="activity-link" placeholder="https://...">
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="modal-cancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: NUEVO APARTADO DE ACTIVIDAD ============ -->
+<div class="modal-overlay hidden" id="slot-modal-overlay">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="slot-modal-title">
+    <button class="modal-close" id="slot-modal-close" type="button" aria-label="Cerrar">✕</button>
+    <p class="eyebrow-line" id="slot-week-label">Semana 1</p>
+    <h3 id="slot-modal-title">Nuevo apartado de actividad</h3>
+    <form id="slot-form">
+      <label class="field">
+        <span>Nombre del apartado</span>
+        <input type="text" id="slot-name" placeholder="Ej. Actividad 3" required>
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="slot-modal-cancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Crear</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: VISUALIZAR ARCHIVO ============ -->
+<div class="viewer-overlay hidden" id="viewer-overlay">
+  <div class="viewer-modal" role="dialog" aria-modal="true" aria-labelledby="viewer-title">
+    <div class="viewer-head">
+      <p class="viewer-title" id="viewer-title">Vista previa</p>
+      <button class="modal-close" id="viewer-close" type="button" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="viewer-body" id="viewer-body"><!-- llenado por JS --></div>
+  </div>
+</div>
+
+<!-- ============ CHATBOT ANIME ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="cb-skin" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#fbeaf1"/>
+      <stop offset="100%" stop-color="#f0d3e2"/>
+    </radialGradient>
+    <linearGradient id="cb-hair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a1220"/>
+      <stop offset="100%" stop-color="#170a12"/>
+    </linearGradient>
+    <symbol id="chatbot-face" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="48" fill="#170a12"/>
+      <path d="M14 66C10 34 26 8 50 8s40 26 36 58c-3-10-9-16-14-19 1 8-2 14-6 17 1-9-2-15-6-18-1 9-6 14-10 16-4-2-9-7-10-16-4 3-7 9-6 18-4-3-7-9-6-17-5 3-11 9-14 19Z" fill="url(#cb-hair)"/>
+      <path d="M30 46c-1 14 3 26 20 28 17-2 21-14 20-28-3-8-11-13-20-13s-17 5-20 13Z" fill="url(#cb-skin)"/>
+      <path d="M33 43c4-6 10-8 17-8s13 2 17 8c-5-2-11-3-17-3s-12 1-17 3Z" fill="#1d0e18"/>
+      <g>
+        <ellipse cx="41.5" cy="50" rx="5.6" ry="7.2" fill="var(--accent)"/>
+        <path d="M41.5 46.6c1.4-1.6 4.2-1.6 4.2 1 0 2-2.1 3.4-4.2 5-2.1-1.6-4.2-3-4.2-5 0-2.6 2.8-2.6 4.2-1Z" fill="#ffe4ec" opacity=".9"/>
+        <circle cx="39.3" cy="47.4" r="1.15" fill="#fff"/>
+      </g>
+      <g>
+        <ellipse cx="58.5" cy="50" rx="5.6" ry="7.2" fill="var(--accent)"/>
+        <path d="M58.5 46.6c1.4-1.6 4.2-1.6 4.2 1 0 2-2.1 3.4-4.2 5-2.1-1.6-4.2-3-4.2-5 0-2.6 2.8-2.6 4.2-1Z" fill="#ffe4ec" opacity=".9"/>
+        <circle cx="56.3" cy="47.4" r="1.15" fill="#fff"/>
+      </g>
+      <path d="M36 40.5c1.8-1.4 4.4-1.7 6.6-.8M57.4 39.7c2.2-.9 4.8-.6 6.6.8" stroke="#1d0e18" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+      <ellipse cx="35" cy="58" rx="3.6" ry="2.1" fill="var(--accent)" opacity=".35"/>
+      <ellipse cx="65" cy="58" rx="3.6" ry="2.1" fill="var(--accent)" opacity=".35"/>
+      <path d="M46.5 63c1.4 1.4 5.6 1.4 7 0" stroke="#c23360" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <path d="M22 30c4-9 14-15 28-15s24 6 28 15c-6-5-16-8-28-8s-22 3-28 8Z" fill="#1d0e18"/>
+      <circle cx="24" cy="34" r="3.4" fill="var(--accent-2)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div id="chatbot-widget" class="chatbot-widget">
+
+  <div class="chatbot-hint" id="chatbot-hint">¡Hola! Soy Aiko ✨ ¿Tienes dudas sobre el portafolio?</div>
+
+  <button class="chatbot-fab" id="chatbot-fab" type="button" aria-label="Abrir chat con Aiko">
+    <svg class="chatbot-avatar-svg" viewBox="0 0 100 100"><use href="#chatbot-face"/></svg>
+    <span class="chatbot-fab-dot"></span>
+  </button>
+
+  <div class="chatbot-panel hidden" id="chatbot-panel" role="dialog" aria-modal="false" aria-labelledby="chatbot-name">
+    <div class="chatbot-head">
+      <div class="chatbot-head-avatar">
+        <svg viewBox="0 0 100 100"><use href="#chatbot-face"/></svg>
+      </div>
+      <div class="chatbot-head-info">
+        <p class="chatbot-name" id="chatbot-name">Aiko</p>
+        <p class="chatbot-status"><span class="chatbot-status-dot"></span>en línea · asistente del portafolio</p>
+      </div>
+      <button class="chatbot-close" id="chatbot-close" type="button" aria-label="Cerrar chat">✕</button>
+    </div>
+
+    <div class="chatbot-messages" id="chatbot-messages"></div>
+
+    <div class="chatbot-quick" id="chatbot-quick"></div>
+
+    <form class="chatbot-input-row" id="chatbot-form">
+      <input type="text" id="chatbot-input" placeholder="Escribe tu pregunta..." autocomplete="off">
+      <button type="submit" class="chatbot-send" aria-label="Enviar">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l12-6-4 6 4 6-12-6Z" fill="currentColor"/></svg>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

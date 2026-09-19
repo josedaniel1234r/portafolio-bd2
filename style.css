@@ -689,6 +689,41 @@ main {
   background: var(--border-soft);
 }
 
+.guest-credentials {
+  margin: 4px 0 18px;
+  padding: 14px 16px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+.guest-credentials-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px solid var(--border-soft);
+}
+.guest-credentials-row:first-of-type { border-top: none; }
+.guest-credentials-row span {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text-muted);
+  word-break: break-all;
+}
+.copy-btn {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease, background .15s ease;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(255,33,102,.08); }
+
 /* ============ DASHBOARD ============ */
 .dash-wrap { padding-top: 6px; }
 .dash-head {
@@ -919,8 +954,14 @@ main {
 }
 .week-row.open .week-node { border-color: var(--unit-color, var(--accent)); color: var(--unit-color, var(--accent)); transform: scale(1.08); }
 .week-row.open .week-node.filled { color: #fff; }
-.week-name-col { display: flex; flex-direction: column; gap: 6px; }
+.week-name-col { display: flex; flex-direction: column; gap: 6px; text-align: left; max-width: 480px; }
 .week-name { font-family: var(--font-display); font-size: 17px; font-weight: 600; transition: transform .3s cubic-bezier(.16,1,.3,1); }
+.week-subtitle {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  font-weight: 400;
+}
 .week-mini-bar {
   display: block;
   width: 90px;
@@ -1152,6 +1193,8 @@ main {
   cursor: pointer;
 }
 .activity-link:hover { text-decoration: underline; }
+.activity-replace-btn { position: relative; }
+.activity-replace-btn input[type="file"] { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
 .activity-del {
   background: none;
   border: 1px solid transparent;
@@ -1461,6 +1504,8 @@ main {
   .week-summary { padding: 16px 2px; gap: 8px; }
   .week-summary-left { gap: 8px; }
   .week-name { font-size: 15px; }
+  .week-subtitle { font-size: 11px; max-width: 200px; }
+  .week-name-col { max-width: 220px; }
   .week-node { width: 24px; height: 24px; font-size: 10.5px; }
   .weeks-list::before { left: 15px; }
   .week-mini-bar { width: 60px; }
@@ -2327,4 +2372,132 @@ body::before{
  .week-row.open{grid-column:span 1;}
  .activity-items{grid-template-columns:1fr;}
  .activity-block.open{grid-column:span 1;}
+}
+
+/* ============================================================
+   "SOBRE MÍ" — elementos interactivos añadidos
+   ============================================================ */
+.about-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.about-tag {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), border-color .2s ease, color .2s ease, background .2s ease;
+  cursor: default;
+}
+.about-tag:hover {
+  transform: translateY(-3px) scale(1.06);
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(255,33,102,.08);
+}
+
+/* foto con inclinación 3D al pasar el mouse */
+.about-photo {
+  transition: transform .18s cubic-bezier(.16,1,.3,1), box-shadow .3s ease;
+  transform: perspective(500px);
+  will-change: transform;
+}
+.about-photo:hover {
+  box-shadow: 0 18px 40px -14px rgba(255,33,102,.5);
+}
+
+/* lista de datos: ícono + texto, con entrada escalonada */
+.about-facts li {
+  align-items: flex-start !important;
+  gap: 14px !important;
+  cursor: default;
+  transition: transform .25s cubic-bezier(.16,1,.3,1), background .25s ease;
+  border-radius: 10px;
+  animation: factRise .5s cubic-bezier(.16,1,.3,1) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+.about-facts li:hover {
+  transform: translateX(4px);
+  background: rgba(255,33,102,.05);
+}
+@keyframes factRise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.about-fact-icon {
+  font-size: 19px;
+  line-height: 1;
+  flex-shrink: 0;
+  padding-top: 1px;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.about-facts li:hover .about-fact-icon { transform: scale(1.25) rotate(-6deg); }
+.about-fact-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-faint);
+  margin-bottom: 3px;
+}
+.about-facts li p { margin: 0; font-size: 14px; color: var(--text); line-height: 1.45; }
+
+/* botón de "dato curioso" — interacción real, no solo decorativa */
+.fun-fact-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 22px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(255,33,102,.08), rgba(157,61,255,.06));
+  border: 1px dashed var(--accent);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+  transition: background .2s ease, transform .15s ease, border-style .2s ease;
+}
+.fun-fact-btn:hover { background: rgba(255,33,102,.14); transform: translateY(-2px); }
+.fun-fact-btn:active { transform: translateY(0) scale(.99); }
+.fun-fact-icon { font-size: 20px; flex-shrink: 0; transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+.fun-fact-btn:hover .fun-fact-icon { transform: rotate(18deg) scale(1.15); }
+.fun-fact-text {
+  flex: 1;
+  transition: opacity .18s ease;
+}
+.fun-fact-text.swapping { opacity: 0; }
+.fun-fact-hint {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-faint);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-facts li { animation: none; }
+}
+
+/* ============================================================
+   PANTALLAS GRANDES (monitores de 24", 27", 28"+)
+   El video de fondo ya cubre el 100% del viewport siempre (usa
+   100vw/100dvh + object-fit:cover), así que se adapta solo. Aquí
+   solo escalamos el ancho del contenido para que no se vea
+   perdido en medio de tanto espacio en pantallas anchas.
+   ============================================================ */
+@media (min-width: 1600px) {
+  .screen { max-width: 1320px; }
+  .course-title { font-size: clamp(56px, 5.5vw, 84px); }
+  .about-text-col { max-width: 760px; }
+}
+@media (min-width: 2000px) {
+  .screen { max-width: 1520px; }
+  body { font-size: 17px; }
 }

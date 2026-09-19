@@ -40,7 +40,6 @@
     <button class="nav-link" data-goto="dashboard" type="button">Unidades</button>
     <button class="nav-link" data-goto="about" type="button">Sobre mí</button>
     <span class="nav-role" id="nav-role"></span>
-    <button class="back-link nav-back hidden" id="nav-back-btn" type="button">← Volver</button>
     <button class="nav-link nav-logout" id="logout-btn" type="button">Cerrar sesión</button>
   </div>
 </nav>
@@ -94,6 +93,11 @@
             <input type="file" id="photo-input" accept="image/*" hidden>
           </div>
           <div class="about-photo-caption">Estudiante · Ingeniería de Sistemas</div>
+          <div class="about-tags">
+            <span class="about-tag">🗄️ Bases de datos</span>
+            <span class="about-tag">🎮 Gamer</span>
+            <span class="about-tag">🧤 Arquero</span>
+          </div>
         </div>
         <div class="about-text-col">
           <p class="eyebrow-line">Sobre mí</p>
@@ -107,11 +111,17 @@
             seguras y de alta disponibilidad.
           </p>
           <ul class="about-facts">
-            <li><span>Curso</span>Base de Datos II</li>
-            <li><span>Enfoque</span>Arquitecturas corporativas &amp; alta disponibilidad</li>
-            <li><span>Herramientas</span>SQL Server Management Studio 19</li>
-            <li><span>Fuera de clase</span>Videojuegos y fútbol (arquero)</li>
+            <li style="--i:0"><span class="about-fact-icon">📘</span><div><span class="about-fact-label">Curso</span><p>Base de Datos II</p></div></li>
+            <li style="--i:1"><span class="about-fact-icon">🏗️</span><div><span class="about-fact-label">Enfoque</span><p>Arquitecturas corporativas &amp; alta disponibilidad</p></div></li>
+            <li style="--i:2"><span class="about-fact-icon">🛠️</span><div><span class="about-fact-label">Herramientas</span><p>SQL Server Management Studio 19</p></div></li>
+            <li style="--i:3"><span class="about-fact-icon">⚽</span><div><span class="about-fact-label">Fuera de clase</span><p>Videojuegos y fútbol (arquero)</p></div></li>
           </ul>
+
+          <button type="button" class="fun-fact-btn" id="fun-fact-btn">
+            <span class="fun-fact-icon" id="fun-fact-icon">🎲</span>
+            <span class="fun-fact-text" id="fun-fact-text">Toca aquí para un dato curioso sobre mí</span>
+            <span class="fun-fact-hint">siguiente →</span>
+          </button>
         </div>
       </div>
     </div>
@@ -134,19 +144,21 @@
             <span>Contraseña</span>
             <input type="password" id="login-password" placeholder="••••••••" required>
           </label>
+
+          <div class="guest-credentials">
+            <div class="guest-credentials-row">
+              <span id="guest-email-text">usuario@bd2.com</span>
+              <button type="button" class="copy-btn" data-copy="usuario@bd2.com">Copiar</button>
+            </div>
+            <div class="guest-credentials-row">
+              <span id="guest-password-text">usuario2026</span>
+              <button type="button" class="copy-btn" data-copy="usuario2026">Copiar</button>
+            </div>
+          </div>
+
           <p class="form-error" id="login-error" hidden></p>
-          <button class="btn btn-primary btn-block" type="submit">Entrar como administrador</button>
+          <button class="btn btn-primary btn-block" type="submit">Iniciar sesión</button>
         </form>
-
-        <div class="login-divider"><span>o</span></div>
-
-        <button class="btn btn-ghost btn-block" id="btn-enter-user" type="button">
-          Entrar como usuario (solo lectura)
-        </button>
-        <p class="login-note">
-          Como usuario puedes ver todo el contenido del portafolio, sin necesidad de
-          cuenta. Solo el administrador puede subir o eliminar actividades.
-        </p>
       </div>
     </div>
   </section>

@@ -53,7 +53,15 @@ const PROFILE_DEFAULTS = {
 };
 
 const UNIT_DEFS = [
-  { title: 'Arquitecturas de Bases de Datos y Configuración del Entorno Corporativo' },
+  {
+    title: 'Arquitecturas de Bases de Datos y Configuración del Entorno Corporativo',
+    weekNames: [
+      'Formulación del Proyecto y Selección de la Arquitectura',
+      'Despliegue y Configuración de Motores de Datos (DBMS)',
+      'Modelamiento Físico y Mecanismos de Integración',
+      'Sustentación y Validación de la Infraestructura de Datos'
+    ]
+  },
   { title: 'Administración de Instancias, Estructuras de Almacenamiento y Gestión de Datos Masivos' },
   { title: 'Seguridad Corporativa, Conectividad de Red y Alta Disponibilidad de Datos' },
   { title: 'Monitoreo de Servidores, Optimización del Desempeño y Recuperación Basada en Flashback' }
@@ -70,6 +78,7 @@ function buildDefaultUnits() {
     weeks: [0, 1, 2, 3].map(w => ({
       id: w,
       name: `Semana ${w + 1}`,
+      subtitle: def.weekNames ? def.weekNames[w] : null,
       activities: [] // se llenan dinámicamente desde Supabase (loadActivitiesFromDB)
     }))
   }));
@@ -218,13 +227,14 @@ document.getElementById('logout-btn').addEventListener('click', () => {
   showScreen('home');
 });
 
-document.getElementById('nav-back-btn').addEventListener('click', () => {
-  showScreen('home');
-});
-
-/* ---------- envío del formulario de login: solo la cuenta de administrador ---------- */
+/* ---------- envío del formulario de login ----------
+   Dos cuentas fijas: la del administrador (privada) y una cuenta
+   pública de invitado de solo lectura (sus datos se muestran en la
+   propia pantalla de login, ya que no da ningún permiso de edición). */
 const ADMIN_EMAIL = 'zafiror14@gmail.com';
 const ADMIN_PASSWORD = 'joseperez123456';
+const GUEST_EMAIL = 'usuario@bd2.com';
+const GUEST_PASSWORD = 'usuario2026';
 
 document.getElementById('login-form').addEventListener('submit', (e) => {
   e.preventDefault();
@@ -232,35 +242,42 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
   const password = document.getElementById('login-password').value;
   const errorEl = document.getElementById('login-error');
 
-  if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+  let role = null;
+  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) role = 'admin';
+  else if (email === GUEST_EMAIL && password === GUEST_PASSWORD) role = 'user';
+
+  if (!role) {
     errorEl.textContent = 'Correo o contraseña incorrectos.';
     errorEl.hidden = false;
     return;
   }
   errorEl.hidden = true;
 
-  state.role = 'admin';
+  state.role = role;
   saveRole();
   updateNavRole();
   showScreen('dashboard');
   document.getElementById('login-form').reset();
 });
 
-/* ---------- entrar como usuario (solo lectura, sin necesidad de cuenta) ---------- */
-document.getElementById('btn-enter-user').addEventListener('click', () => {
-  state.role = 'user';
-  saveRole();
-  updateNavRole();
-  showScreen('dashboard');
+/* copiar correo/contraseña de invitado con un clic */
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const value = btn.dataset.copy;
+    const original = btn.textContent;
+    try {
+      await navigator.clipboard.writeText(value);
+      btn.textContent = '¡Copiado!';
+    } catch (err) {
+      window.prompt('Copia manualmente:', value);
+    }
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  });
 });
 
 function updateNavRole() {
   const roleEl = document.getElementById('nav-role');
   roleEl.textContent = state.role === 'admin' ? 'Administrador' : state.role === 'user' ? 'Usuario' : '';
-
-  // el administrador puede cerrar sesión; el usuario (solo lectura) solo vuelve al inicio
-  document.getElementById('logout-btn').classList.toggle('hidden', state.role !== 'admin');
-  document.getElementById('nav-back-btn').classList.toggle('hidden', state.role !== 'user');
 }
 
 /* ---------- foto de perfil (subida desde el computador, guardada en Supabase Storage) ---------- */
@@ -476,6 +493,7 @@ function renderUnit(unitId) {
             : String(week.id + 1).padStart(2, '0')}</span>
           <span class="week-name-col">
             <span class="week-name">${week.name}</span>
+            ${week.subtitle ? `<span class="week-subtitle">${escapeHtml(week.subtitle)}</span>` : ''}
             ${week.activities.length ? `<span class="week-mini-bar"><span class="week-mini-bar-fill" style="width:${weekPct}%"></span></span>` : ''}
           </span>
         </span>
@@ -639,6 +657,52 @@ function renderUnit(unitId) {
       if (it) openViewer(it);
     });
   });
+
+  // reemplazar el archivo de un elemento existente, sin borrar y volver a crearlo
+  list.querySelectorAll('[data-replace-unit]').forEach(input => {
+    input.addEventListener('click', (e) => e.stopPropagation());
+    input.addEventListener('change', async (e) => {
+      e.stopPropagation();
+      const file = input.files[0];
+      if (!file) return;
+      const uId = Number(input.dataset.replaceUnit);
+      const wId = Number(input.dataset.replaceWeek);
+      const acId = input.dataset.replaceActivity;
+      const itId = input.dataset.replaceItem;
+      const u = state.units.find(x => x.id === uId);
+      const w = u.weeks.find(x => x.id === wId);
+      const a = w.activities.find(x => x.id === acId);
+      const item = a.items.find(x => x.id === itId);
+      if (!item) return;
+
+      const label = input.closest('.activity-replace-btn');
+      const originalHTML = label.innerHTML;
+      label.innerHTML = 'Subiendo…';
+
+      try {
+        if (!sb) throw new Error('Supabase no está configurado.');
+        const oldPath = item.filePath;
+        const newPath = makeFilePath('items', file.name);
+        await uploadFile(newPath, file);
+
+        const { error } = await sb.from('portfolio_items')
+          .update({ file_path: newPath, file_name: file.name, file_type: file.type })
+          .eq('id', itId);
+        if (error) throw error;
+
+        item.filePath = newPath;
+        item.fileName = file.name;
+        item.fileType = file.type;
+        if (oldPath) deleteStoredFile(oldPath);
+
+        renderUnit(currentUnitId);
+      } catch (err) {
+        console.error(err);
+        alert('No se pudo reemplazar el archivo: ' + (err.message || 'revisa tu conexión o la configuración de Supabase.'));
+        label.innerHTML = originalHTML;
+      }
+    });
+  });
 }
 
 function renderActivityBlock(unit, week, act, slotIndex) {
@@ -721,10 +785,15 @@ function renderItem(unit, week, act, it, itemIndex) {
                 <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M1 8s2.6-5 7-5 7 5 7 5-2.6 5-7 5-7-5-7-5Z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/></svg>
                 Visualizar
               </button>` : ''}
-              ${fileUrl ? `<a class="activity-link" href="${fileUrl}" download="${escapeAttr(it.fileName || 'archivo')}" target="_blank" rel="noopener">
+              ${(fileUrl && state.role === 'admin') ? `<a class="activity-link" href="${fileUrl}" download="${escapeAttr(it.fileName || 'archivo')}" target="_blank" rel="noopener">
                 <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1.5v8m0 0L5 6.7M8 9.5l3-2.8M2.5 11v2a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 Descargar
               </a>` : ''}
+              ${state.role === 'admin' ? `<label class="activity-link activity-replace-btn">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2.5 8a5.5 5.5 0 0 1 9.4-3.9M13.5 8a5.5 5.5 0 0 1-9.4 3.9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M12 2.5v2.6H9.4M4 13.5v-2.6h2.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Reemplazar
+                <input type="file" class="activity-replace-input" hidden data-replace-unit="${unit.id}" data-replace-week="${week.id}" data-replace-activity="${act.id}" data-replace-item="${it.id}">
+              </label>` : ''}
               ${it.link ? `<a class="activity-link" href="${escapeAttr(it.link)}" target="_blank" rel="noopener">Ver enlace ↗</a>` : ''}
             </div>
           </div>
@@ -850,7 +919,7 @@ function openViewer(it) {
       <div class="viewer-fallback">
         <div class="activity-item-icon viewer-fallback-icon">${name.split('.').pop().slice(0,4).toUpperCase()}</div>
         <p>La vista previa dentro del navegador no está disponible para este tipo de archivo (<strong>${escapeHtml(name)}</strong>).</p>
-        <a class="btn btn-primary" href="${url}" download="${escapeAttr(name)}">Descargar archivo</a>
+        ${state.role === 'admin' ? `<a class="btn btn-primary" href="${url}" download="${escapeAttr(name)}">Descargar archivo</a>` : ''}
       </div>`;
   }
 }
@@ -1262,6 +1331,56 @@ function initHeroButtons() {
   });
 }
 
+/* ---------- inclinación 3D suave para la foto de "Sobre mí" ---------- */
+function initPhotoTilt() {
+  const photo = document.getElementById('about-photo');
+  if (!photo) return;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
+
+  photo.addEventListener('mousemove', (e) => {
+    const rect = photo.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    const rotateX = (-y / rect.height) * 16;
+    const rotateY = (x / rect.width) * 16;
+    photo.style.transform = `perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.04)`;
+  });
+  photo.addEventListener('mouseleave', () => {
+    photo.style.transform = 'perspective(500px)';
+  });
+}
+
+/* ---------- botón de "dato curioso" en Sobre mí ---------- */
+const FUN_FACTS = [
+  { icon: '🧤', text: 'Como arquero, mi mayor cualidad es la concentración bajo presión — la misma que uso para depurar una consulta SQL a las 2 a.m.' },
+  { icon: '🎮', text: 'He perdido la cuenta de cuántos "rollback" he hecho... tanto en una base de datos como en una partida en línea.' },
+  { icon: '☕', text: 'Mi combo favorito para programar: café, buena música y una consulta bien optimizada.' },
+  { icon: '⚡', text: 'Si las bases de datos tuvieran modo competitivo, ya estaría en rango máximo de normalización.' },
+  { icon: '🥅', text: 'Fuera de la cancha, atajo balones. Frente al teclado, atajo errores de sintaxis.' },
+  { icon: '🕹️', text: 'Cuando no estoy en clases de Ingeniería de Sistemas, lo más probable es que esté jugando algo o pateando un balón.' }
+];
+let funFactIndex = -1;
+function initFunFactButton() {
+  const btn = document.getElementById('fun-fact-btn');
+  if (!btn) return;
+  const textEl = document.getElementById('fun-fact-text');
+  const iconEl = document.getElementById('fun-fact-icon');
+  const hintEl = btn.querySelector('.fun-fact-hint');
+
+  btn.addEventListener('click', () => {
+    funFactIndex = (funFactIndex + 1) % FUN_FACTS.length;
+    const fact = FUN_FACTS[funFactIndex];
+    textEl.classList.add('swapping');
+    setTimeout(() => {
+      textEl.textContent = fact.text;
+      iconEl.textContent = fact.icon;
+      if (hintEl) hintEl.textContent = 'siguiente →';
+      textEl.classList.remove('swapping');
+    }, 180);
+  });
+}
+
 function initCustomCursor() {
   const cursor = document.getElementById('custom-cursor');
   if (!window.matchMedia('(pointer: fine)').matches) return;
@@ -1442,6 +1561,8 @@ async function init() {
   initBgVideo();
   initCustomCursor();
   initHeroButtons();
+  initPhotoTilt();
+  initFunFactButton();
   initChatbot();
 
   // carga los datos reales desde Supabase antes de pintar cualquier contenido dinámico

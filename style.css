@@ -696,6 +696,12 @@ main {
   border-radius: var(--radius-md);
   background: var(--surface-2);
 }
+.guest-credentials-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 10px;
+}
 .guest-credentials-row {
   display: flex;
   align-items: center;
@@ -961,6 +967,30 @@ main {
   color: var(--text-muted);
   line-height: 1.4;
   font-weight: 400;
+}
+.week-edit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  color: var(--text-faint);
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: 6px;
+  position: relative;
+  z-index: 1;
+  transition: color .15s ease, background .15s ease, border-color .15s ease, transform .15s ease;
+}
+.week-edit-btn:hover, .week-edit-btn:focus-visible {
+  color: var(--accent);
+  background: rgba(255,33,102,.08);
+  border-color: rgba(255,33,102,.3);
+  transform: scale(1.08);
+  outline: none;
 }
 .week-mini-bar {
   display: block;

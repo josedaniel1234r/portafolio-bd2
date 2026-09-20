@@ -146,6 +146,7 @@
           </label>
 
           <div class="guest-credentials">
+            <p class="guest-credentials-label">Iniciar sesión como usuario:</p>
             <div class="guest-credentials-row">
               <span id="guest-email-text">usuario@bd2.com</span>
               <button type="button" class="copy-btn" data-copy="usuario@bd2.com">Copiar</button>
@@ -238,6 +239,29 @@
       <div class="modal-actions">
         <button type="button" class="btn btn-ghost" id="slot-modal-cancel">Cancelar</button>
         <button type="submit" class="btn btn-primary">Crear</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: EDITAR NOMBRE DE SEMANA ============ -->
+<div class="modal-overlay hidden" id="week-edit-overlay">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="week-edit-title">
+    <button class="modal-close" id="week-edit-close" type="button" aria-label="Cerrar">✕</button>
+    <p class="eyebrow-line" id="week-edit-unit-label">Unidad I</p>
+    <h3 id="week-edit-title">Editar semana</h3>
+    <form id="week-edit-form">
+      <label class="field">
+        <span>Nombre corto</span>
+        <input type="text" id="week-edit-name" placeholder="Ej. Semana 1" required>
+      </label>
+      <label class="field">
+        <span>Descripción / subtítulo (opcional)</span>
+        <textarea id="week-edit-subtitle" rows="2" placeholder="Ej. Formulación del proyecto y selección de la arquitectura"></textarea>
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="week-edit-cancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
       </div>
     </form>
   </div>

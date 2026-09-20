@@ -140,6 +140,28 @@ async function loadActivitiesFromDB() {
   });
 }
 
+/* ---------- nombres/subtítulos de semana editados por el administrador ---------- */
+async function loadWeekTitlesFromDB() {
+  if (!sb) return;
+  const { data, error } = await sb.from('week_titles').select('*');
+  if (error) { console.error('Error cargando nombres de semana de Supabase:', error); return; }
+  (data || []).forEach(row => {
+    const u = state.units.find(x => x.id === row.unit_id);
+    const w = u && u.weeks.find(x => x.id === row.week_id);
+    if (!w) return;
+    if (row.title) w.name = row.title;
+    w.subtitle = row.subtitle || null;
+  });
+}
+
+async function saveWeekTitleToDB(unitId, weekId, title, subtitle) {
+  if (!sb) throw new Error('Supabase no está configurado.');
+  const { error } = await sb.from('week_titles').upsert({
+    unit_id: unitId, week_id: weekId, title, subtitle: subtitle || null
+  });
+  if (error) throw error;
+}
+
 async function loadItemsFromDB() {
   if (!sb) return;
   const { data, error } = await sb.from('portfolio_items').select('*').order('item_order', { ascending: true });
@@ -496,6 +518,9 @@ function renderUnit(unitId) {
             ${week.subtitle ? `<span class="week-subtitle">${escapeHtml(week.subtitle)}</span>` : ''}
             ${week.activities.length ? `<span class="week-mini-bar"><span class="week-mini-bar-fill" style="width:${weekPct}%"></span></span>` : ''}
           </span>
+          ${state.role === 'admin' ? `<span class="week-edit-btn" data-editweek-unit="${unit.id}" data-editweek-week="${week.id}" title="Editar el nombre de esta semana" role="button" tabindex="0">
+            <svg width="13" height="13" viewBox="0 0 15 15" fill="none"><path d="M2 11.5V13h1.5l7.4-7.4-1.5-1.5L2 11.5ZM11.8 2.7a1 1 0 0 1 1.4 0l.9.9a1 1 0 0 1 0 1.4l-1 1-2.3-2.3 1-1Z" fill="currentColor"/></svg>
+          </span>` : ''}
         </span>
         <span class="week-summary-left">
           <span class="week-count">${weekItemCount} elemento${weekItemCount === 1 ? '' : 's'}</span>
@@ -525,6 +550,17 @@ function renderUnit(unitId) {
       const key = btn.dataset.toggle;
       if (isOpen) openWeeks.add(key); else openWeeks.delete(key);
       saveOpenSet(OPEN_WEEKS_KEY, openWeeks);
+    });
+  });
+
+  // editar el nombre/subtítulo de una semana
+  list.querySelectorAll('[data-editweek-unit]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openWeekEditModal(Number(el.dataset.editweekUnit), Number(el.dataset.editweekWeek));
+    });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); el.click(); }
     });
   });
 
@@ -873,6 +909,56 @@ document.getElementById('slot-form').addEventListener('submit', async (e) => {
   }
 
   if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Crear'; }
+});
+
+/* ---------- modal de edición de nombre/subtítulo de semana ---------- */
+let pendingWeekEdit = { unitId: null, weekId: null };
+
+function openWeekEditModal(unitId, weekId) {
+  const unit = state.units.find(u => u.id === unitId);
+  const week = unit.weeks.find(w => w.id === weekId);
+  pendingWeekEdit = { unitId, weekId };
+  document.getElementById('week-edit-unit-label').textContent = `Unidad ${unit.roman}`;
+  document.getElementById('week-edit-name').value = week.name || '';
+  document.getElementById('week-edit-subtitle').value = week.subtitle || '';
+  document.getElementById('week-edit-overlay').classList.remove('hidden');
+  document.getElementById('week-edit-name').focus();
+}
+function closeWeekEditModal() {
+  document.getElementById('week-edit-overlay').classList.add('hidden');
+  document.getElementById('week-edit-form').reset();
+}
+document.getElementById('week-edit-close').addEventListener('click', closeWeekEditModal);
+document.getElementById('week-edit-cancel').addEventListener('click', closeWeekEditModal);
+document.getElementById('week-edit-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'week-edit-overlay') closeWeekEditModal();
+});
+
+document.getElementById('week-edit-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('week-edit-name').value.trim();
+  const subtitle = document.getElementById('week-edit-subtitle').value.trim();
+  if (!name) return;
+
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Guardando…'; }
+
+  const { unitId, weekId } = pendingWeekEdit;
+  const unit = state.units.find(u => u.id === unitId);
+  const week = unit.weeks.find(w => w.id === weekId);
+
+  try {
+    await saveWeekTitleToDB(unitId, weekId, name, subtitle);
+    week.name = name;
+    week.subtitle = subtitle || null;
+    closeWeekEditModal();
+    renderUnit(currentUnitId);
+  } catch (err) {
+    console.error(err);
+    alert('No se pudo guardar: ' + (err.message || 'revisa tu conexión o la configuración de Supabase.'));
+  }
+
+  if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Guardar'; }
 });
 
 /* ---------- modal de visualización de archivos (sin necesidad de descargar) ---------- */
@@ -1567,6 +1653,7 @@ async function init() {
 
   // carga los datos reales desde Supabase antes de pintar cualquier contenido dinámico
   await loadActivitiesFromDB(); // primero los "apartados" de cada semana...
+  await loadWeekTitlesFromDB(); // ...los nombres de semana personalizados...
   await Promise.all([loadProfileFromDB(), loadItemsFromDB()]); // ...luego el perfil y los elementos dentro de ellos
 
   const name = state.profileName || PROFILE_DEFAULTS.name;
